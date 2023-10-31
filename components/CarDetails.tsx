@@ -6,6 +6,7 @@ import Image from "next/image";
 import { Dialog, Transition } from "@headlessui/react";
 import { CarProps } from "@/types";
 import { generateCarImageUrl } from "@/utils";
+import { useState, useEffect } from "react";
 
 interface CarDetailsProps {
   isOpen: boolean;
@@ -13,10 +14,26 @@ interface CarDetailsProps {
   car: CarProps;
 }
 
-const CarDetails = ({ isOpen, closeModal, car }: CarDetailsProps) => (
+const CarDetails = ({ isOpen, closeModal, car }: CarDetailsProps) => {
+  const [selectedImage, setSelectedImage] = useState<string>(""); // Initialize with the default image
+
+  const changeMainImage = (angle: string) => {
+    setSelectedImage(generateCarImageUrl(car, angle));
+  };
+
+  const goBackToOriginalImage = () => {
+    setSelectedImage(generateCarImageUrl(car)); // Set it to the URL of the original image
+  };
+
+  useEffect(() => {
+    // Initialize the selected image with the URL of the first thumbnail image when the component loads or when the 'car' prop changes
+    setSelectedImage(generateCarImageUrl(car));
+  }, [car]);
+
+  return (
   <>
     <Transition appear show={isOpen} as={Fragment}>
-      <Dialog as='div' className='relative z-10' onClose={closeModal}>
+      <Dialog as='div' className='relative z-20' onClose={closeModal}>
         <Transition.Child
           as={Fragment}
           enter='ease-out duration-300'
@@ -57,18 +74,19 @@ const CarDetails = ({ isOpen, closeModal, car }: CarDetailsProps) => (
 
                 <div className='flex-1 flex flex-col gap-3'>
                   <div className='relative w-full h-40 bg-pattern bg-cover bg-center rounded-lg'>
-                    <Image src={generateCarImageUrl(car)} alt='car model' fill priority className='object-contain' />
+                    <Image alt='car model' fill priority className='object-contain' src={selectedImage}  onClick={goBackToOriginalImage} // Handle the click on the original image to go back to the original picture 
+                    />
                   </div>
 
                   <div className='flex gap-3'>
                     <div className='flex-1 relative w-full h-24 bg-primary-blue-100 rounded-lg'>
-                      <Image src={generateCarImageUrl(car, "29")} alt='car model' fill priority className='object-contain' />
+                      <Image src={generateCarImageUrl(car, "29")} alt='car model' fill priority className='object-contain' onClick={() => changeMainImage("29")} />
                     </div>
                     <div className='flex-1 relative w-full h-24 bg-primary-blue-100 rounded-lg'>
-                      <Image src={generateCarImageUrl(car, "33")} alt='car model' fill priority className='object-contain' />
+                      <Image src={generateCarImageUrl(car, "5")} alt='car model' fill priority className='object-contain' onClick={() => changeMainImage("5")} />
                     </div>
                     <div className='flex-1 relative w-full h-24 bg-primary-blue-100 rounded-lg'>
-                      <Image  src={generateCarImageUrl(car, "13")} alt='car model' fill priority className='object-contain' />
+                      <Image  src={generateCarImageUrl(car, "13")} alt='car model' fill priority className='object-contain' onClick={() => changeMainImage("13")} />
                     </div>
                   </div>
                 </div>
@@ -99,5 +117,6 @@ const CarDetails = ({ isOpen, closeModal, car }: CarDetailsProps) => (
     </Transition>
   </>
 );
+}
 
 export default CarDetails;
